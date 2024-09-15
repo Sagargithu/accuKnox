@@ -1,0 +1,38 @@
+import requests
+import time
+import logging
+
+# Set up logging to store application status
+logging.basicConfig(filename='app_health.log', level=logging.INFO, 
+                    format='%(asctime)s - %(message)s')
+
+# Configuration
+APP_URL = "http://your-application-url.com/health"  # Application URL to check
+CHECK_INTERVAL = 60  # Time in seconds between checks
+
+# Function to check the application's status
+def check_app_health():
+    try:
+        response = requests.get(APP_URL)
+        
+        # Check if status code indicates success (2xx)
+        if 200 <= response.status_code < 300:
+            log_status("UP", response.status_code)
+            print(f"Application is UP (Status: {response.status_code})")
+        else:
+            log_status("DOWN", response.status_code)
+            print(f"Application is DOWN (Status: {response.status_code})")
+    
+    except requests.exceptions.RequestException as e:
+        log_status("DOWN", "No response")
+        print(f"Application is DOWN (Error: {str(e)})")
+
+# Function to log the status
+def log_status(status, code):
+    message = f"Application is {status} (Status: {code})"
+    logging.info(message)
+
+if __name__ == "__main__":
+    while True:
+        check_app_health()
+        time.sleep(CHECK_INTERVAL)  # Wait before the next health check
